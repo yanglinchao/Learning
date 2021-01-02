@@ -1,0 +1,32 @@
+dat <- read.table(file = "eg13.1.txt", header = T)
+attach(dat)
+lm.dat <- lm(GRADE ~ GPA + TUCE + PSI)
+summary(lm.dat)
+probit.dat <- glm(GRADE ~ GPA + TUCE + PSI, family = binomial(link="probit"))   #probit模型
+summary(probit.dat)
+library(lmtest)
+lrtest(probit.dat)   #LR检验
+McFa.Rsq <- function(glm.object){   #glm()函数的估计结果作为函数的输入变量
+  deviance <- glm.object$deviance
+  null.deviance <- glm.object$null.deviance
+  McFa.Rsq <- 1-(deviance/null.deviance)
+  list(McFadden.Rsquare <- McFa.Rsq)
+}
+McFa.Rsq(probit.dat)
+logit.dat <- glm(GRADE ~ GPA + TUCE + PSI, family = binomial(link = "logit"))
+summary(logit.dat)
+library(lmtest)
+lrtest(logit.dat)
+McFa.Rsq(logit.dat)
+###Probit模型和Logit模型中的回归系数与线性概率模型不同，并没有什么实际的经济意义
+###但是可以计算解释变量GPA、TUCE和PSI对GRADE的平均边际影响
+coe <- coef(probit.dat)   #提取Probit模型系数
+probit <- dnorm(coe[1]+coe[2]*mean(GPA)+coe[3]*mean(TUCE)+coe[4]*mean(PSI))   #求Probit模型平均边际影响
+(m.gpa <- coe[2]*probit)
+(m.tuce <- coe[3]*probit)
+(m.psi <- coe[4]*probit)
+coe.l <- coef(logit.dat)
+logit <- dlogis(coe.l[1]+coe.l[2]*mean(GPA)+coe.l[3]*mean(TUCE)+coe.l[4]*mean(PSI))
+(m.gpa.l <- coe.l[2]*logit)
+(m.tuce.l <- coe.l[3]*logit)
+(m.psi.l <- coe.l[4]*logit)

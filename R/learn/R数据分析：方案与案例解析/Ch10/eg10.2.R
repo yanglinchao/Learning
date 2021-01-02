@@ -1,0 +1,6 @@
+Age <- c(18, 23, 25, 35, 65, 54, 34, 56, 72, 19, 23, 42, 18, 39,37)
+MaxRate <- c(202, 186, 187, 180, 156, 169, 174, 172, 153, 199, 193, 174, 198, 183, 178)
+cor(Age, MaxRate)
+plot(Age, MaxRate)
+abline(lm(MaxRate ~ Age))
+coef(lm(MaxRate ~ Age))

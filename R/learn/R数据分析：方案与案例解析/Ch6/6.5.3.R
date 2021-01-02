@@ -1,0 +1,10 @@
+s <- read.table("6.5.3.txt", header=T)
+attach(s)
+plot(height, weight)
+abline(lm(weight~height))
+s
+plot(s[,5], s[,6], type="n")
+text(s[,5], s[,6], age, cex=0.7)
+plot(s[,5], s[,6], type="n")
+text(s[,5], s[,6], sex, cex=0.7)
+pairs(s)

@@ -1,0 +1,23 @@
+require(ggplot2)
+p <- ggplot(mtcars, aes(x = mpg, y = wt))
+summary(p)   #summary()可以帮助我们查看图形对象的结构而不用直接绘制出图形
+p + geom_point()
+p + geom_point(aes(colour = factor(cyl)))
+p + geom_point(aes(y = disp))
+p + geom_point(colour = "darkblue")
+p + geom_point(aes(colour = "darkblue"))
+require(nlme)
+p <- ggplot(Oxboys, aes(age, height, group = Subject)) + geom_line()
+p
+ggplot(Oxboys, aes(age, height)) + geom_line()
+p + geom_smooth(aes(group = Subject), method = "lm", se = F)
+p + geom_smooth(aes(group = 1), method = "lm", size = 2, se = F)
+boysbox <- ggplot(Oxboys, aes(Occasion, height)) + geom_boxplot()
+boysbox
+boysbox + geom_line(aes(group = Subject), colour = "#3366FF")
+require(ggplot2)
+ggplot(diamonds, aes(carat)) + geom_histogram(aes(y = ..density..), binwidth = 0.1)
+d <- ggplot(diamonds, aes(carat)) + xlim(0, 3)
+d + stat_bin(aes(ymax = ..count..), binwidth = 0.1, geom = "area")
+d + stat_bin(aes(size = ..density..), binwidth = 0.1, geom = "point", position = "identity")
+d + stat_bin(aes(fill = ..count..), binwidth = 0.1, geom = "tile", position = "identity")

@@ -1,0 +1,6 @@
+library(mlogit)
+data("Fishing", package = "mlogit")
+fish <- mlogit.data(Fishing, varying = c(2:9), shape = "wide", choice = "mode")
+head(fish)
+fish.mlogit <- mlogit(mode ~ price + catch, data = fish)
+summary(fish.mlogit)

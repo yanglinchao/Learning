@@ -1,0 +1,8 @@
+                           "alcohol" "nondrinker" "occasional drinker" "regular drinker"
+"GENDER" "tobacco"                                                                                 
+"M"    "non-smoker"                         6                       19                    7
+       "former smoker"                      0                        9                    0
+       "smoker"                             1                        6                    5
+"F"    "non-smoker"                        12                       26                    2
+       "former-smoker"                      3                        5                    1
+       "smoker"                             1                        6                    1

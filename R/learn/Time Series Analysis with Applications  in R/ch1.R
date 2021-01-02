@@ -1,0 +1,21 @@
+library(ggplot2)
+library(TSA)
+data("larain")
+larain <- data.frame(larain)
+year <- c(1878:1992)
+larain <- data.frame(year = year, larain = larain)
+ggplot(data = larain) + geom_point(aes(x = year, y = larain)) + geom_line(aes(x = year, y = larain))
+ggplot(data = larain) + geom_point(aes(x = zlag(larain), y = larain))
+plot(larain, ylab = 'Inches', xlab = 'Year', type = "o")
+class(larain)
+
+data(color)
+plot(color, ylab = 'Color Property', xlab = 'Batch', type = 'o')
+plot(y = color, x = zlag(color), ylab = 'Color Property', xlab = 'Previous Batch Color Property')
+
+data(hare)
+plot(hare, ylab = 'Abundance', xlab = 'Year', type = 'o')
+plot(y = hare, x = zlag(hare), ylab = 'Abundance', xlab = 'Previous Year Abundance')
+
+data("tempdub")
+plot(tempdub, ylab = 'Temperature', type = 'o')

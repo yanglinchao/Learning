@@ -1,0 +1,6 @@
+ship <- read.table(file = "eg15.1.txt", header = T)
+attach(ship)
+summary(ship[, -1])
+hist(Acc)
+ship.glm <-glm(Acc ~ TB + TC + TD + TE + T6569 + T7074 + T7579 + O7579 + log(Mon), family = poisson())
+summary(ship.glm)
