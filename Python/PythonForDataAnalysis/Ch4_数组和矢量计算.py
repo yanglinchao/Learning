@@ -134,3 +134,95 @@ arr.transpose((1, 0, 2))
 # 简单的转置可以使用.T，其实就是进行轴对换，或者使用swapaxes()
 arr
 arr.swapaxes(1, 2)
+
+# 通用函数
+# 一元通用函数
+arr = np.arange(10)
+arr
+np.sqrt(arr)
+np.exp(arr)
+# 二元通用函数
+x = np.random.randn(8)
+y = np.random.randn(8)
+x
+y
+np.maximum(x, y) # 元素级最大值
+arr = np.random.randn(7)*5
+arr
+np.modf(arr)
+
+# 矢量化数组运算
+points = np.arange(-5, 5, 1)
+points
+xs, ys = np.meshgrid(points, points)
+xs
+ys
+import matplotlib.pyplot as plt
+z = np.sqrt(xs**2 + ys**2)
+z
+plt.imshow(z, cmap=plt.cm.gray); plt.colorbar()
+plt.title("Image plot of $\sqrt{x^2+y^2}$ for a grid of values")
+
+# 将条件逻辑表述为数组运算
+xarr = np.array([1.1, 1.2, 1.3, 1.4, 1.5])
+yarr = np.array([2.1, 2.2, 2.3, 2.4, 2.5])
+cond = np.array([True, False, True, True, False])
+result = [(x if c else y)
+          for x, y, c in zip(xarr, yarr, cond)]
+result
+result = np.where(cond, xarr, yarr)
+result
+# 假设有一个随机数据组成的矩阵，希望将所有正值替换为2，将所有负值替换为-2
+arr = np.random.randn(4, 4)
+arr
+np.where(arr>0, 2, -2)
+np.where(arr>0, 2, arr) # 只将正值设置为2
+
+arr = np.random.randn(5, 4) # 正态分布的数据
+arr.mean()
+np.mean(arr)
+arr.sum()
+np.sum(arr)
+arr
+arr.mean(axis=0)
+arr.mean(axis=1)
+arr = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+arr
+arr.cumsum(0)
+arr.cumsum(1)
+arr.cumprod(1)
+
+# 用于布尔型数组的方法
+arr = np.random.randn(100)
+(arr>0).sum()
+bools = np.array([False, False, True, False])
+bools.any()
+bools.all()
+
+# 唯一化及其他集合的逻辑
+names = np.array(['Bob', 'Joe', 'Will', 'Bob', 'Will', 'Joe', 'Joe'])
+np.unique(names)
+ints = np.array([3, 3, 3, 2, 2, 2, 1, 1, 4, 4])
+np.unique(ints)
+# 测试一个数组中的值在另一个数组中的成员资格
+values = np.array([6, 0, 0, 3, 2, 5, 6])
+np.in1d(values, [2, 3, 6])
+
+# 排序
+arr = np.random.rand(8)
+arr
+arr.sort()
+arr
+# 多维数组可以在任何一个轴向进行排序
+arr = np.random.randn(3, 3)
+arr
+arr.sort(axis=0)
+arr
+
+# 将数组以二进制格式保存到磁盘
+arr = np.arange(10)
+np.save('some_array', arr)
+np.load('some_array.npy')
+np.savez('array_archive.npz', a=arr, b=arr)
+arch = np.load('array_archive.npz')
+arch['b']
