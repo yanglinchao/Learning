@@ -226,3 +226,58 @@ np.load('some_array.npy')
 np.savez('array_archive.npz', a=arr, b=arr)
 arch = np.load('array_archive.npz')
 arch['b']
+
+# 存取文本文件
+arr = np.loadtxt('array_ex.txt', delimiter=',')
+np.savetxt('array_ex.txt', arr, delimiter=',')
+
+
+# 线性代数
+x = np.array([[1, 2, 3], [4, 5, 6]])
+y = np.array([[6, 23], [-1, 7], [8, 9]])
+x
+y
+x.dot(y) # 相当于np.dot(x, y)
+np.dot(x, np.ones(3))
+
+from numpy.linalg import inv, qr
+X = np.random.randn(5, 5)
+mat = X.T.dot(X)
+inv(mat)
+mat.dot(inv(mat))
+q, r = qr(mat)
+r
+
+# 随机数产生
+from random import normalvariate
+N = 1000000
+%timeit samples = [normalvariate(0, 1) for _ in xrange(N)]
+%timeit np.random.normal(size=N)
+
+# 随机漫步
+nsteps = 1000
+draws = np.random.randint(0, 2, size=nsteps)
+steps = np.where(draws>0, 1, -1)
+walk = steps.cumsum()
+walk.min()
+walk.max()
+# 第一次到达10的步数
+(np.abs(walk)>=10).argmax()
+
+# 一次模拟多个随机漫步
+nwalks = 5000
+nsteps = 1000
+draws = np.random.randint(0, 2, size=(nwalks, nsteps)) # 0或1
+steps = np.where(draws>0, -1, 1)
+walks = steps.cumsum(1)
+walks
+# 所有随机漫步过程的最大值和最小值
+walks.max()
+walks.min()
+# 计算30或-30的最小穿越时间
+hits30 = (np.abs(walks)>=30).any(1)
+hits30
+hits30.sum() # 到达30或-30的数量
+# 利用布尔型数组选出穿越了30的随机漫步，并调用argmax在轴1上获取穿越时间
+crossing_times = (np.abs(walks[hits30]) >=30).argmax(1)
+crossing_times.mean()
