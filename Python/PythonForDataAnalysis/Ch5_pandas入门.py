@@ -144,3 +144,39 @@ frame.reindex(columns=states)
 # 同时对行和列进行重新索引，插值只能按行应用（即轴0）
 frame.reindex(index=['a', 'b', 'c', 'd'],
               columns=states)
+
+# 丢弃指定轴上的项
+obj = pd.Series(np.arange(5.), index=['a', 'b', 'c', 'd', 'e'])
+new_obj = obj.drop('c')
+new_obj
+obj.drop(['d', 'c'])
+# 对于DataFrame，可以删除任意轴上的索引值
+data = pd.DataFrame(np.arange(16).reshape((4, 4)),
+                    index=['Ohio', 'Colorado', 'Utah', 'New York'],
+                    columns=['one', 'two', 'three', 'four'])
+data.drop(['Colorado', 'Ohio'])
+data.drop('two', axis=1)
+data.drop(['two', 'four'], axis=1)
+
+# 索引、选取和过滤
+obj = pd.Series(np.arange(4.), index=['a', 'b', 'c', 'd'])
+obj['b']
+obj[1]
+obj[[1, 3]]
+obj[obj < 2]
+# 利用标签进行切片
+obj['b':'c']
+obj['b':'c'] = 5
+obj
+# 对DataFrame进行索引
+data = pd.DataFrame(np.arange(16).reshape((4, 4)),
+                    index=['Ohio', 'Colorado', 'Utah', 'New York'],
+                    columns=['one', 'two', 'three', 'four'])
+data['two']
+data[['three', 'one']]
+data[:2]
+data[data['three']>5]
+data < 5
+data[data<5]
+data[data<5] = 0
+data
