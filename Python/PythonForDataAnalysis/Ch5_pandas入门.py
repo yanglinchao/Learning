@@ -180,3 +180,144 @@ data < 5
 data[data<5]
 data[data<5] = 0
 data
+
+data.loc['Colorado', ['two', 'three']]
+data.iloc[2]
+data.loc[:'Utah', 'two']
+
+# 算术运算和数据对齐
+s1 = pd.Series([7.3, -2.5, 3.4, 1.5], index=['a', 'c', 'd', 'e'])
+s2 = pd.Series([-2.1, 3.6, -1.5, 4, 3.1], index=['a', 'c', 'e', 'f', 'g'])
+s1+s2
+df1 = pd.DataFrame(np.arange(9.).reshape((3, 3)), columns=list('bcd'),
+                   index=['Ohio', 'Texas', 'Colorado'])
+df2 = pd.DataFrame(np.arange(12.).reshape((4, 3)), columns=list('bde'),
+                   index=['Utah', 'Ohio', 'Texas', 'Oregon'])
+df1+df2
+# 在算术方法中填充值
+df1 = pd.DataFrame(np.arange(12.).reshape((3, 4)), columns=list('abcd'))
+df2 = pd.DataFrame(np.arange(20.).reshape((4, 5)), columns=list('abcde'))
+df1+df2
+df1.add(df2, fill_value=0)
+
+# DataFrame和Series之间的运算
+frame = pd.DataFrame(np.arange(12.).reshape((4, 3)), columns=list('bde'),
+                     index=['Utah', 'Ohio', 'Texas', 'Oregon'])
+series = frame.iloc[0]
+frame
+series
+frame-series
+series2 = pd.Series(range(3), index=['b', 'e', 'f'])
+frame+series2
+series3=frame['d']
+frame.sub(series3, axis=0)
+
+# 函数应用和映射
+frame = pd.DataFrame(np.random.randn(4, 3), columns=list('bde'),
+                     index=['Utah', 'Ohio', 'Texas', 'Oregon'])
+np.abs(frame)
+
+f = lambda x: x.max() - x.min()
+frame.apply(f, axis=0)
+frame.apply(f, axis=1)
+
+def f(x):
+    return pd.Series([x.min(), x.max()], index=['min', 'max'])
+frame.apply(f)
+
+format = lambda x: '%.2f' % x
+frame.applymap(format)
+frame['e'].map(format)
+
+# 排序和排名
+obj = pd.Series(range(4), index=['d', 'a', 'b', 'c'])
+obj
+obj.sort_index()
+
+frame = pd.DataFrame(np.arange(8).reshape((2, 4)), index=['three', 'one'],
+                     columns=['d', 'a', 'b', 'c'])
+frame.sort_index(axis=0)
+frame.sort_index(axis=1)
+frame.sort_index(axis=1, ascending=False) #按降序排列
+
+frame = pd.DataFrame({'b':[4, 7, -3, 2], 
+                      'a':[0, 1, 0, 1]})
+frame
+frame.sort_values(by='b')
+frame.sort_values(by=['a', 'b'])
+
+# 对Series进行排序
+obj = pd.Series([4, np.nan, 7, np.nan, -3, 2])
+obj.sort_values()
+
+# 排名
+obj = pd.Series([7, -5, 7, 4, 2, 0, 4])
+obj.rank()
+obj.rank(method='first')
+obj.rank(ascending=False, method='max')
+
+frame = pd.DataFrame({'b':[4.3, 7, -3, 2],
+                      'a':[0, 1, 0, 1],
+                      'c':[-2, 5, 8, -2.5]})
+frame
+frame.rank(axis=1)
+
+# 带有重复值的轴索引
+obj = pd.Series(range(5), index=['a', 'a', 'b', 'b', 'c'])
+obj.index.is_unique
+obj['a']
+obj['c']
+
+df = pd.DataFrame(np.random.randn(4, 3),
+                  index=['a', 'a', 'b', 'b'])
+df.loc['b']
+
+# 汇总
+df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5],
+                   [np.nan, np.nan], [0.75, -1.3]],
+                  index=['a', 'b', 'c', 'd'],
+                  columns=['one', 'two'])
+df
+df.sum(axis=0)
+df.sum(axis=1)
+df.mean(axis=1, skipna=False)
+df.idxmax() #间接统计型方法
+df.cumsum() #累计型方法
+
+# 导入股票价格和成交量数据
+import pandas_datareader.data as web
+all_data = {}
+for ticker in ['AAPL', 'IBM', 'MSFT', 'GOOG']:
+    all_data[ticker] = web.get_data_yahoo(ticker, '1/1/2000', '1/1/2010')
+price = pd.DataFrame({tic:data['Adj Close']
+                      for tic, data in all_data.items()})
+volume = pd.DataFrame({tic:data['Volume']
+                       for tic, data in all_data.items()})
+# 计算价格的百分数变化
+returns = price.pct_change()
+returns.tail()
+# 计算相关系数和协方差
+returns.MSFT.corr(returns.IBM) #计算相关系数
+returns.MSFT.cov(returns.IBM) #计算协方差
+returns.corr() #DataFrame的corr
+returns.cov() #DataFrame的cov
+returns.corrwith(returns.IBM)
+returns.corrwith(volume)
+
+# 唯一值
+obj = pd.Series(['c', 'a', 'd', 'a', 'a', 'b', 'b', 'c', 'c'])
+uniques = obj.unique()
+uniques
+# 计算频率
+obj.value_counts() #计算一个Series中各值出现的频率
+pd.value_counts(obj.values) #返回出现的频率
+# 成员资格
+mask = obj.isin(['b', 'c'])
+mask
+obj[mask]
+
+data = pd.DataFrame({'Qu1':[1, 3, 4, 3, 4],
+                     'Qu2':[2, 3, 1, 2, 3],
+                     'Qu3':[1, 5, 2, 4, 4]})
+data
+data.apply(pd.value_counts).fillna(0)
