@@ -321,3 +321,98 @@ data = pd.DataFrame({'Qu1':[1, 3, 4, 3, 4],
                      'Qu3':[1, 5, 2, 4, 4]})
 data
 data.apply(pd.value_counts).fillna(0)
+
+# 滤除缺失数据
+from numpy import nan as NA
+data = pd.Series([1, NA, 3.5, NA, 7])
+data.dropna()
+data[data.notnull()]
+
+data = pd.DataFrame([[1., 6.5, 3.], [1., NA, NA],
+                     [NA, NA, NA], [NA, 6.5, 3.]])
+cleaned = data.dropna()
+data
+cleaned
+#只丢弃全为NA的行
+data.dropna(how='all')
+#只丢弃全为NA的列
+data.dropna(how='all', axis=1)
+
+df = pd.DataFrame(np.random.randn(7, 3))
+df.iloc[:4, 1] = NA; df.iloc[:2, 2] = NA
+df
+df.dropna(thresh=3)
+
+# 填充缺失值
+df = pd.DataFrame(np.random.randn(7, 3))
+df.iloc[:4, 1] = NA; df.iloc[:2, 2] = NA
+df.fillna(0)
+df.fillna({1:0.5, 3:-1})
+df.fillna(0, inplace=True)
+
+df = pd.DataFrame(np.random.randn(6, 3))
+df.iloc[2:, 1] = NA; df.iloc[4:, 2] = NA
+df
+df.fillna(method='ffill')
+df.fillna(method='ffill', limit=2)
+
+data = pd.Series([1., NA, 3.5, NA, 7])
+data.fillna(data.mean()) #使用平均值填充
+
+# 层次化索引
+data = pd.Series(np.random.randn(10),
+                 index=[['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'd', 'd'],
+                        [1, 2, 3, 1, 2, 3, 1, 2, 2, 3]])
+data
+data.index
+data['b']
+data['b':'c']
+data.loc[['b', 'd']]
+data[:, 2] #在内层进行索引
+
+data.unstack()
+data.unstack().stack() #unstack的逆运算是stack
+
+frame = pd.DataFrame(np.arange(12).reshape((4, 3)),
+                     index=[['a', 'a', 'b', 'b'], [1, 2, 1, 2]],
+                     columns=[['Ohio', 'Ohio', 'Colorado'],
+                              ['Green', 'Red', 'Green']])
+frame
+frame.index.names = ['key1', 'key2']
+frame.columns.names = ['state', 'color']
+frame
+frame['Ohio']
+
+# 重排分级顺序
+frame.swaplevel('key1', 'key2')
+frame.sort_index(level=1)
+frame.swaplevel(0, 1).sort_index(0)
+# 根据级别汇总统计
+frame = pd.DataFrame(np.arange(12).reshape((4, 3)),
+                     index=[['a', 'a', 'b', 'b'], [1, 2, 1, 2]],
+                     columns=[['Ohio', 'Ohio', 'Colorado'],
+                              ['Green', 'Red', 'Green']])
+frame.index.names = ['key1', 'key2']
+frame.columns.names = ['state', 'color']
+frame
+frame.sum(level='key2')
+frame.sum(level='color', axis=1)
+
+# 使用DataFrame的列
+frame = pd.DataFrame({'a':range(7),
+                      'b':range(7, 0, -1),
+                      'c':['one', 'one', 'one', 'two', 'two', 'two', 'two'],
+                      'd':[0, 1, 2, 0, 1, 2, 3]})
+frame
+frame2 = frame.set_index(['c', 'd'])
+frame2
+frame.set_index(['c', 'd'], drop=False)
+frame2.reset_index()
+
+# 整数索引
+ser3 = pd.Series(range(3), index=[-5, 1, 3])
+ser3
+ser3.iat[2]
+frame = pd.DataFrame(np.arange(6).reshape(3, 2),
+                     index=[2, 0, 1])
+frame.iloc[0, 1]
