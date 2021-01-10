@@ -146,3 +146,35 @@ from StringIO import StringIO
 tag = '<a href="http://www.google.com">Google</a>'
 root = objectify.parse(StringIO(tag)).getroot()
 root
+
+# 二进制数据格式
+frame = pd.read_csv('pydata-book/examples/ex1.csv')
+frame.to_pickle('frame_pickle') # 储存
+pd.read_pickle('frame_pickle') # 读取
+
+# HDF5格式
+store = pd.HDFStore('mydata.h5')
+store['obj1'] = frame
+store['obj1_col'] = frame['a']
+store
+
+# Excel文件
+import xlrd
+import openpyxl
+xls_file = pd.ExcelFile('mydata.xlsx')
+table = xls_file.parse('Sheet1')
+table
+
+# 使用HTML和Web API
+import requests
+url = 'http://search.twitter.com/search.json?q=python%20pandas'
+resp = requests.get(url)
+resp
+# 加载到Python对象中
+import json
+data = json.loads(resp.text)
+data.keys()
+# 用一个列表定义出感兴趣的tweet字段，然后将results列表传给DataFrame
+tweet_fields = ['created_at', 'from_user', 'id', 'text']
+tweets = pd.DataFrame(data['results'], columns=tweet_fields)
+tweets
