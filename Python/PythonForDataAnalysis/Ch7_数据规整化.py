@@ -177,3 +177,92 @@ df = pd.DataFrame({'left':result, 'right':result+5},
 df
 df.unstack('state')
 df.unstack('state').stack('side')
+
+# 将“长格式”旋转为“宽格式”
+ldata = pd.read_csv('macrodata.csv')
+ldata[:10]
+pivoted = pd.pivot_table(ldata,
+                         values='value',
+                         index='date',
+                         columns='item')
+pivoted.head()
+
+ldata['value2'] = np.random.randn(len(ldata))
+ldata[:10]
+pivoted = pd.pivot_table(ldata,
+                         index='date',
+                         columns='item')
+pivoted.head()
+
+# 数据转换
+
+# 移除重复数据
+data = pd.DataFrame({'k1':['one']*3 + ['two']*4,
+                     'k2':[1, 1, 2, 3, 3, 4, 4]})
+data.duplicated()
+data.drop_duplicates()
+data['v1'] = range(7)
+data.drop_duplicates(['k1'])
+data.drop_duplicates(['k1', 'k2'], keep='last')
+
+# 利用函数或映射进行数据转换
+data = pd.DataFrame({'food':['bacon', 'pulled pork', 'bacon', 'Pastrami',
+                             'corned beef', 'Bacon', 'pastrami', 'honey ham',
+                             'nava lox'],
+                     'ounces':[4, 3, 12, 6, 7.5, 8, 3, 5, 6]})
+data
+meat_to_animal = {'bacon':'pig', 'pulled pork':'pig', 'pastrami':'cow',
+                  'corned beef':'cow', 'honey ham':'pig', 'nova lox':'salmon'}
+data['animal'] = data['food'].map(str.lower).map(meat_to_animal)
+data
+
+# 替换值
+data = pd.Series([1., -999., 2., -999., -1000., 3.])
+data
+data.replace(-999, np.nan)
+data.replace([-999, -1000], np.nan)
+data.replace({-999:np.nan, -1000:0})
+
+# 重命名轴索引
+data = pd.DataFrame(np.arange(12).reshape((3, 4)),
+                    index=['Ohio', 'Colorado', 'New York'],
+                    columns=['one', 'two', 'three', 'four'])
+data.index = data.index.map(str.upper)
+data
+data.rename(index=str.title, columns=str.upper)
+data.rename(index={'OHIO':'INDIANA'}, columns={'three':'peekaboo'})
+_ = data.rename(index={'OHIO':'INDIANA'}, inplace=True)
+data
+
+# 离散化和面元划分
+ages = [20, 22, 25, 27, 21, 23, 37, 31, 61, 45, 41, 32]
+bins = [18, 25, 35, 60, 100]
+cats = pd.cut(ages, bins)
+cats
+cats.codes
+cats.categories
+pd.value_counts(cats)
+pd.cut(ages, [18, 26, 36, 61, 100], right=False)
+
+group_names = ['Youth', 'YoungAdult', 'MiddleAged', 'Senior']
+pd.cut(ages, bins, labels=group_names)
+
+data = np.random.rand(20)
+data
+pd.cut(data, 4, precision=2)
+
+data = np.random.randn(1000) # 正态分布
+cats = pd.qcut(data, 4) # 按四分位数进行切割
+cats
+pd.value_counts(cats)
+pd.qcut(data, [0, 0.1, 0.5, 0.9, 1.])
+
+# 检测和过滤异常值
+np.random.seed(12345)
+data = pd.DataFrame(np.random.randn(1000, 4))
+data.describe()
+col = data[3]
+col[np.abs(col)>3]
+data[(np.abs(data)>3).any(1)]
+data[np.abs(data)>3] = np.sign(data)*3
+data.describe()
