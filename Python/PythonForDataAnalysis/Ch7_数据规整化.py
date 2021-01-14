@@ -266,3 +266,104 @@ col[np.abs(col)>3]
 data[(np.abs(data)>3).any(1)]
 data[np.abs(data)>3] = np.sign(data)*3
 data.describe()
+
+# 排列和随机采样
+df = pd.DataFrame(np.arange(5*4).reshape(5, 4))
+sampler = np.random.permutation(5)
+df
+df.take(sampler)
+df.take(np.random.permutation(len(df)))[:3]
+
+bag = np.array([5, 7, -1, 6, 4])
+sampler = np.random.randint(0, len(bag), size=10)
+sampler
+draws = bag.take(sampler)
+draws
+
+# 计算指标/哑变量
+df = pd.DataFrame({'key':['b', 'b', 'a', 'c', 'a', 'b'],
+                   'data1':range(6)})
+pd.get_dummies(df['key'])
+
+dummies = pd.get_dummies(df['key'], prefix='key')
+df_with_dummy = df[['data1']].join(dummies)
+df_with_dummy
+
+mnames = ['movie_id', 'title', 'genres']
+movies = pd.read_table('pydata-book\datasets\movielens\movies.dat', sep='::', header=None, names=mnames)
+movies[:10]
+genre_iter = (set(x.split('|')) for x in movies.genres)
+genres = sorted(set.union(*genre_iter))
+dummies = pd.DataFrame(np.zeros((len(movies), len(genres))), columns=genres)
+dummies
+for i, gen in enumerate(movies.genres):
+    dummies.loc[i, gen.split('|')] = 1
+movies_windic = movies.join(dummies.add_prefix('Genre_'))
+movies_windic.iloc[0]
+
+values = np.random.rand(10)
+bins = [0, 0.2, 0.4, 0.6, 0.8, 1]
+pd.get_dummies(pd.cut(values, bins))
+
+# 字符串操作
+val = 'a,b, guido'
+val.split(',')
+pieces = [x.strip() for x in val.split(',')]
+pieces
+
+first, second, third = pieces
+first + '::' + second + '::' + third
+'::'.join(pieces)
+
+val = 'a,b, guido'
+'guido' in val
+val.index(',')
+val.find(':')
+val.index(':')
+
+val.count(',')
+
+val
+val.replace(',', '::')
+val.replace(',', '')
+
+# 正则表达式
+import re
+text = "foo bar\t baz  \tqux"
+re.split('\s+', text)
+regex = re.compile('\s+')
+regex.split(text)
+regex.findall(text)
+
+text = """Dave dave@google.com
+Steve steve@gmail.com
+Rob rob@gmail.com
+Ryan ryan@yahoo.com
+"""
+pattern = r'[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}'
+regex = re.compile(pattern, flags=re.IGNORECASE) # re.IGNORECASE的作用是使正则表达式对大小写不敏感
+regex.findall(text)
+m = regex.search(text)
+m
+text[m.start():m.end()]
+print(regex.match(text))
+print(regex.sub('REDACTED', text))
+
+pattern = r'([A-Z0-9._%+-]+)@([A-Z0-9.-]+)\.([A-Z]{2,4})'
+regex = re.compile(pattern, flags=re.IGNORECASE)
+m = regex.match('wesm@bright.net')
+m.groups()
+
+regex.findall(text)
+
+print(regex.sub(r'Username: \1, Domain: \2, Suffix: \3', text))
+
+regex = re.compile(r"""
+                   (?P<username>[A-Z0-9._%+-]+)
+                   @
+                   (?P<domain>[A-Z0-9.-]+)
+                   \.
+                   (?P<suffix>[A-Z]{2,4})""",
+                   flags=re.IGNORECASE|re.VERBOSE)
+m = regex.match('wesm@bright.net')
+m.groupdict()
