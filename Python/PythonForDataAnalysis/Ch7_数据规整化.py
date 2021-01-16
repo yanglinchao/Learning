@@ -7,6 +7,7 @@ Created on Mon Jan 11 03:00:38 2021
 
 import numpy as np
 import pandas as pd
+import re
 
 # 数据库风格的DataFrame
 
@@ -328,7 +329,6 @@ val.replace(',', '::')
 val.replace(',', '')
 
 # 正则表达式
-import re
 text = "foo bar\t baz  \tqux"
 re.split('\s+', text)
 regex = re.compile('\s+')
@@ -367,3 +367,24 @@ regex = re.compile(r"""
                    flags=re.IGNORECASE|re.VERBOSE)
 m = regex.match('wesm@bright.net')
 m.groupdict()
+
+# pandas中矢量化的字符串函数
+data = {'Dave':'dave@google.com', 'Steve':'steve@gmail.com',
+        'Rob':'rob@gmail.com', 'Wes':np.nan}
+data = pd.Series(data)
+data
+data.isnull()
+data.str.contains('gmail')
+
+pattern = '([A-Z0-9._%+-]+)@([A-Z0-9.-]+)\\.([A-Z]{2,4})'
+data.str.findall(pattern, flags=re.IGNORECASE)
+
+matches = data.str.match(pattern, flags=re.IGNORECASE)
+matches
+
+
+# USDA食品数据库
+import json
+db = json.load(open('pydata-book/datasets/usda_food/database.json'))
+len(db)
+db[0].keys()
