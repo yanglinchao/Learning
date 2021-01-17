@@ -388,3 +388,47 @@ import json
 db = json.load(open('pydata-book/datasets/usda_food/database.json'))
 len(db)
 db[0].keys()
+db[0]['nutrients'][0]
+
+nutrients = pd.DataFrame(db[0]['nutrients'])
+nutrients[:7]
+
+info_keys = ['description', 'group', 'id', 'manufacturer']
+info = pd.DataFrame(db, columns=info_keys)
+info[:5]
+info
+pd.value_counts(info.group)[:10]
+
+nutrients = []
+for rec in db:
+    fnuts = pd.DataFrame(rec['nutrients'])
+    fnuts['id'] = rec['id']
+    nutrients.append(fnuts)
+nutrients = pd.concat(nutrients, ignore_index=True)
+nutrients
+
+nutrients.duplicated().sum()
+nutrients = nutrients.drop_duplicates()
+
+col_mapping = {'description':'food', 'group':'fgroup'}
+info = info.rename(columns=col_mapping, copy=False)
+info
+
+col_mapping = {'description':'nutrient', 'group':'nutgroup'}
+nutrients = nutrients.rename(columns=col_mapping, copy=False)
+nutrients
+
+ndata = pd.merge(nutrients, info, on='id', how='outer')
+ndata
+ndata.loc[30000]
+
+result = ndata.groupby(['nutrient', 'fgroup'])['value'].quantile(0.5)
+result['Zinc, Zn'].sort_values().plot(kind='barh')
+
+by_nutrient = ndata.groupby(['nutgroup', 'nutrient'])
+get_maximum = lambda x: x.xs(x.value.idxmax())
+get_minimum = lambda x: x.xs(x.value.idxmin())
+max_foods = by_nutrient.apply(get_maximum)['value', 'food']
+
+# 让food小一点
+max_foods.food =  max_foods.food.str[:50]
