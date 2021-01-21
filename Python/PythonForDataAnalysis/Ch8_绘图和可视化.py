@@ -100,3 +100,50 @@ pgon = plt.Polygon([[0.15, 0.15], [0.35, 0.4], [0.2, 0.6]], color='g', alpha=0.5
 ax.add_patch(rect)
 ax.add_patch(circ)
 ax.add_patch(pgon)
+
+
+
+# pandas绘图函数
+
+# 线形图
+s = pd.Series(np.random.randn(10).cumsum(), index=np.arange(0, 100, 10))
+s.plot()
+ 
+df = pd.DataFrame(np.random.randn(10, 4).cumsum(0),
+                  columns=['A', 'B', 'C', 'D'],
+                  index=np.arange(0, 100, 10))
+df.plot()
+
+# 柱状图
+fig, axes = plt.subplots(2, 1)
+data = pd.Series(np.random.randn(16), index=list('abcdefghijklmnop'))
+data.plot(kind='bar', ax=axes[0], color='k', alpha=0.7)
+data.plot(kind='barh', ax=axes[1], color='k', alpha=0.7)
+
+df = pd.DataFrame(np.random.randn(6, 4), 
+                  index=['one', 'two', 'three', 'four', 'five', 'six'],
+                  columns=pd.Index(['A', 'B', 'C', 'D'], name='Genus'))
+df
+df.plot(kind='bar')
+df.plot(kind='barh', stacked=True, alpha=0.5)
+
+tips = pd.read_csv('pydata-book/examples/tips.csv')
+party_counts = pd.crosstab(tips['day'], tips['size'])
+party_counts
+
+party_counts = party_counts.iloc[:, 2:5] # 1个人和6个人的聚会都比较少
+party_pcts = party_counts.div(party_counts.sum(1).astype(float), axis=0) # 规格化成“和为1”
+party_pcts
+party_pcts.plot(kind='bar', stacked=True)
+
+# 直方图和密度图
+tips = pd.read_csv('pydata-book/examples/tips.csv')
+tips['tip_pct'] = tips['tip']/tips['total_bill']
+tips['tip_pct'].hist(bins=50)
+tips['tip_pct'].plot(kind='kde')
+
+comp1 = np.random.normal(0, 1, size=200) # N(0, 1)
+comp2 = np.random.normal(10, 2, size=200) # N(10, 4)
+values = pd.Series(np.concatenate([comp1, comp2]))
+values.hist(bins=100, alpha=0.3, color='k', density=True)
+values.plot(kind='kde', style='k--')
