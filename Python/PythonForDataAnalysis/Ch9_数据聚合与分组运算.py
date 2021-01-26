@@ -208,3 +208,103 @@ def regress(data, yvar, xvars):
     return result.params
 
 by_year.apply(regress, "AAPL", ['SPX'])
+
+
+# 透视表
+tips = pd.read_csv('pydata-book/examples/tips.csv')
+tips['tip_pct'] = tips['tip']/tips['total_bill'] # 添加“小费占总额百分比”的列
+tips[-3:]
+
+# 根据time和smoker计算分组平均数（pivot_table的默认聚合类型），并将sex和smoker放到行上
+tips.pivot_table(index=['time', 'smoker'])
+tips.pivot_table(['tip_pct', 'size'], index=['time', 'day'], columns='smoker')
+tips.pivot_table(['tip_pct', 'size'], index=['time', 'day'], columns='smoker', margins=True)
+tips.pivot_table('tip_pct', index=['time', 'smoker'], columns='day', aggfunc=len, margins=True)
+tips.pivot_table('size', index=['time', 'smoker'], columns='day', aggfunc='sum', fill_value=0)
+
+# 交叉表
+data = pd.DataFrame({'Sample':range(1, 11),
+                     'Gender':['F', 'M', 'F', 'M', 'M', 'M', 'F', 'F', 'M', 'F'],
+                     'Handedness':['R', 'L', 'R', 'R', 'L', 'R', 'R', 'L', 'R', 'R']})
+data
+pd.crosstab(data.Gender, data.Handedness, margins=True)
+pd.crosstab([tips.time, tips.day], tips.smoker, margins=True)
+
+
+# 2012联邦选举委员会数据库
+fec = pd.read_csv('pydata-book/datasets/fec/P00000001-ALL.csv')
+fec.iloc[123456]
+# 添加党派数据
+unique_cands = fec.cand_nm.unique()
+parties = {'Bachmann, Michelle':'Republican',
+           'Cain, Herman':'Republican',
+           'Gingrich, Newt':'Republican',
+           'Huntsman, Jon': 'Republican',
+           'Johnson, Gary Earl':'Republican',
+           'McCotter, Thaddeus G':'Republican',
+           'Obama, Barack':'Democrat',
+           'Paul, Ron':'Republican',
+           'Pawlenty, Timothy':'Republican',
+           'Perry, Rick':'Republican',
+           "Roemer, Charles E. 'Buddy' III":'Republican',
+           'Romney, Mitt':'Republican',
+           'Santorum, Rick':'Republican'}
+fec['party'] = fec.cand_nm.map(parties)
+# 根据职业计算出资总额
+fec.contbr_occupation.value_counts()[:10]
+# 对职业信息进行处理
+occ_mapping = {
+    'INFORMATION REQUESTED PER BEST EFFORTS':"NOT PROVIDED",
+    'INFORMATION REQUESTED':'NOT PROVEDED',
+    'INFORMATION REQUESTED (BEST EFFORTS)':'NOT PROVIDED',
+    'C.E.O.':'CEO'
+    }
+f = lambda x: occ_mapping.get(x, x) # 如果没有提供相关映射，则返回x
+fec.contbr_occupation = fec.contbr_occupation.map(f)
+# 对雇主信息进行处理
+emp_mapping = {
+    'INFORMATION REQUESTED PER BEST EFFORTS':'NOT PROVIDED',
+    'INFORMATION REQUESTED':'NOT PROVIDED',
+    'SELF':'SELF-EMPLOYED',
+    'SELF EMPLOYED':'SELF-EMPLOYED'
+    }
+f = lambda x: emp_mapping.get(x, x)
+fec.contbr_employer = fec.contbr_employer.map(f)
+by_occupation = fec.pivot_table('contb_receipt_amt', index='contbr_occupation', columns='party', aggfunc='sum')
+over_2mm = by_occupation[by_occupation.sum(1)>2000000]
+over_2mm
+over_2mm.plot(kind='barh')
+
+def get_top_amounts(group, key, n=5):
+    totals = group.groupby(key)['contb_receipt_amt'].sum()
+    # 根据key对totals进行降序排列
+    return totals.sort_values(ascending=False)[n:]
+# 整理有关Obama和Romney的数据
+fec_mrbo = fec[fec.cand_nm.isin(['Obama, Barack', 'Romney, Mitt'])]
+# 根据职业和雇主进行聚合
+grouped = fec_mrbo.groupby('cand_nm')
+grouped.apply(get_top_amounts, 'contbr_occupation', n=7)
+grouped.apply(get_top_amounts, 'contbr_employer', n=10)
+
+# 对出资额分组
+bins = np.array([0, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000])
+labels = pd.cut(fec_mrbo.contb_receipt_amt, bins)
+labels
+# 根据候选人姓名以及面元标签对数据进行分组
+grouped = fec_mrbo.groupby(['cand_nm', labels])
+grouped.size().unstack(0)
+# 对出资额求和并在面元内规格化，以便图形显示两位候选人各种赞助额度的比例
+bucket_sums = grouped.contb_receipt_amt.sum().unstack(0)
+bucket_sums
+normed_sums = bucket_sums.div(bucket_sums.sum(axis=1), axis=0)
+normed_sums
+normed_sums[:-2].plot(kind='barh', stacked=True)
+
+# 根据州统计赞助信息
+# 根据候选人和州对数据进行聚合
+grouped = fec_mrbo.groupby(['cand_nm', 'contbr_st'])
+totals = grouped.contb_receipt_amt.sum().unstack(0).fillna(0)
+totals = totals[totals.sum(1)>100000]
+totals[:10]
+percent = totals.div(totals.sum(1), axis=0)
+percent[:10]
