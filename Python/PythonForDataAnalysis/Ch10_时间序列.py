@@ -280,3 +280,37 @@ rng = pd.date_range('1/1/2000', periods=100, freq='D')
 ts = pd.Series(np.arange(100), index=rng)
 ts.groupby(lambda x: x.month).mean()
 ts.groupby(lambda x: x.weekday).mean()
+
+# 升采样和插值
+frame = pd.DataFrame(np.random.randn(2, 4),
+                     index=pd.date_range('1/1/2000', periods=2, freq='W-WED'),
+                     columns=['Colorado', 'Texas', 'New York', 'Ohio'])
+frame[:5]
+df_daily = frame.resample('D').fillna(method='ffill')
+frame.resample('D').fillna(method='ffill')
+frame.resample('D').fillna(method='ffill', limit=2) # 填充指定期数
+frame.resample('W-THU').fillna('ffill')
+
+# 通过时期进行重采样
+frame = pd.DataFrame(np.random.randn(24, 4),
+                     index=pd.period_range('1-2000', '12-2001', freq='M'),
+                     columns=['Colorado', 'Texas', 'New York', 'Ohio'])
+frame[:5]
+annual_frame = frame.resample('A-DEC').mean()
+annual_frame
+
+annual_frame.resample('Q-DEC').fillna('ffill')
+annual_frame.resample('Q-DEC', convention='start').fillna('ffill')
+annual_frame.resample('Q-MAR').fillna('ffill')
+
+# 时间序列绘图
+close_px_all = pd.read_csv('pydata-book/examples/stock_px.csv', parse_dates=True, index_col=0)
+close_px = close_px_all[['AAPL', 'MSFT', 'XOM']]
+close_px = close_px.resample('B').fillna('ffill')
+close_px
+close_px['AAPL'].plot()
+close_px.loc['2009'].plot()
+
+close_px['AAPL'].loc['01-2011':'03-2011'].plot()
+appl_q = close_px['AAPL'].resample('Q-DEC').fillna('ffill')
+appl_q.loc['2009':].plot()
